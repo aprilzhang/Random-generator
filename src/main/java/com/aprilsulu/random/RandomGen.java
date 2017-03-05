@@ -5,6 +5,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Random;
 
+import com.google.common.annotations.VisibleForTesting;
+/**
+ * Generates random numbers based on their probabilities
+ * @author yzhang
+ */
 public final class RandomGen
 {
 	private final Random random = new Random();
@@ -30,6 +35,7 @@ public final class RandomGen
 		checkArgument(randomNums.length != 0
 				&& randomNums.length == probabilities.length);
 
+		//Create cumulative probabilities array
 		cumulativeProbabilities = new float[randomNums.length];
 		cumulativeProbabilities[0] = probabilities[0];
 		for (int i = 1; i < randomNums.length; i++)
@@ -45,14 +51,21 @@ public final class RandomGen
 	/**
 	 * Returns one of the randomNums. When this method is called multiple times
 	 * over a long period, it should return the numbers roughly with the
-	 * initialised probabilities
+	 * Initialized probabilities
 	 */
 	public int nextNum()
 	{
-		final float p = random.nextFloat();
+		return nextNumFromRandom( random.nextFloat());
+	}
+	
+	@VisibleForTesting
+	int nextNumFromRandom(float random)
+	{
+		//Iterate through the numbers until the cumulative probability of 
+		// the visited elements is greater than the random float
 		for (int i = 0; i < randomNums.length; i++)
 		{
-			if (cumulativeProbabilities[i] >= p)
+			if (cumulativeProbabilities[i] >= random)
 			{
 				return randomNums[i];
 			}
